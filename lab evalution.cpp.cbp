@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <set>
 #include <cctype>
@@ -16,21 +15,13 @@ set<string> keywords = {
 
 set<string> operators = {
     "=", "+", "-", "*", "/", "%",
-
     "==", "!=", "<", ">", "<=", ">=",
-
     "&&", "||", "!",
-
     "++", "--",
-
     "+=", "-=", "*=", "/=", "%=",
-
     "<<", ">>",
-
     "&", "|", "^", "~",
-
     "&=", "|=", "^=",
-
     "->", "::", ".", "?", ":"
 };
 
@@ -42,56 +33,43 @@ set<string> separators = {
 string getType(string word) {
 
     if (keywords.count(word))
-        return "keyword";
+        return "Keyword";
 
     if (operators.count(word))
-        return "operator";
+        return "Operator";
 
     if (separators.count(word))
-        return "separator";
+        return "Separator";
 
     if (word[0] == '"')
-        return "string constant";
+        return "String Constant";
 
     if (word[0] == '\'')
-        return "character constant";
+        return "Character Constant";
 
     if (isdigit(word[0]))
-        return "constant";
+        return "Constant";
 
-    return "identifier";
+    return "Identifier";
 }
 
-void lexer() {
-
-    ifstream file("token.txt");
-
-    if (!file) {
-        cout << "Cannot open token.txt" << endl;
-        return;
-    }
-
-    string code(
-        (istreambuf_iterator<char>(file)),
-        istreambuf_iterator<char>()
-    );
+void lexer(string code) {
 
     int i = 0;
     int n = code.length();
 
-    cout << "\n========== LEXICAL ANALYSIS ==========\n";
-    cout << "Token\t\tType\n";
+    cout << "\n========== LEXICAL ANALYZER ==========\n";
+    cout << "TOKEN\t\tTYPE\n";
     cout << "--------------------------------------\n";
 
     while (i < n) {
 
-        // Ignore spaces and new lines
         if (isspace(code[i])) {
             i++;
             continue;
         }
 
-        // Ignore single line comments
+        // Single line comment
         if (code[i] == '/' && i + 1 < n &&
             code[i + 1] == '/') {
 
@@ -101,16 +79,15 @@ void lexer() {
             continue;
         }
 
-        // Ignore multi-line comments
+        // Multi-line comment
         if (code[i] == '/' && i + 1 < n &&
             code[i + 1] == '*') {
 
             i += 2;
 
             while (i + 1 < n &&
-                   !(code[i] == '*' && code[i + 1] == '/')) {
+                   !(code[i] == '*' && code[i + 1] == '/'))
                 i++;
-            }
 
             i += 2;
             continue;
@@ -118,7 +95,7 @@ void lexer() {
 
         string word = "";
 
-        // Identify identifiers and keywords
+        // Keyword or Identifier
         if (isalpha(code[i]) || code[i] == '_') {
 
             while (i < n &&
@@ -129,12 +106,11 @@ void lexer() {
             }
         }
 
-        // Identify numbers
+        // Number / Constant
         else if (isdigit(code[i])) {
 
             while (i < n &&
-                   (isalnum(code[i]) ||
-                    code[i] == '.' ||
+                   (isalnum(code[i]) || code[i] == '.' ||
                     code[i] == '_')) {
 
                 word += code[i];
@@ -142,7 +118,7 @@ void lexer() {
             }
         }
 
-        // Identify string constants
+        // String Constant
         else if (code[i] == '"') {
 
             word += code[i++];
@@ -151,7 +127,7 @@ void lexer() {
 
                 word += code[i];
 
-                if (code[i] == '"' && word.size() > 1) {
+                if (code[i] == '"') {
                     i++;
                     break;
                 }
@@ -165,7 +141,7 @@ void lexer() {
             }
         }
 
-        // Identify character constants
+        // Character Constant
         else if (code[i] == '\'') {
 
             word += code[i++];
@@ -188,12 +164,12 @@ void lexer() {
             }
         }
 
-        // Identify operators and separators
+        // Operators and Separators
         else {
 
             bool found = false;
 
-            // Check 3-character operators first
+            // Three character operator
             if (i + 2 < n) {
 
                 string three = code.substr(i, 3);
@@ -205,7 +181,7 @@ void lexer() {
                 }
             }
 
-            // Check 2-character operators
+            // Two character operator
             if (!found && i + 1 < n) {
 
                 string two = code.substr(i, 2);
@@ -217,7 +193,7 @@ void lexer() {
                 }
             }
 
-            // Check 1-character operators
+            // One character operator or separator
             if (!found) {
 
                 string one = code.substr(i, 1);
@@ -250,7 +226,40 @@ void lexer() {
 
 int main() {
 
-    lexer();
+    string code;
+    string line;
+
+    cout << "Enter C++ Code:\n";
+    cout << "(Write END in a separate line to finish)\n\n";
+
+    while (getline(cin, line)) {
+
+        if (line == "END")
+            break;
+
+        code += line + "\n";
+    }
+
+    lexer(code);
 
     return 0;
 }
+
+
+
+for output :
+
+int main() {
+    int a = 10;
+    int b = 20;
+    int sum = a + b;
+
+    if (a >= b && a != 0) {
+        a++;
+        b--;
+    }
+
+    cout << "Hello World";
+    return 0;
+}
+END
